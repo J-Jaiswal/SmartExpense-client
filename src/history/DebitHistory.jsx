@@ -8,12 +8,6 @@ const DebitHistory = () => {
   const [error, setError] = useState("");
   const serverURL = import.meta.env.VITE_BASE_URL;
 
-  // Example:
-  // const date = new Date(); // Current date and time
-  // const formattedDate = format(date, "MMMM dd, yyyy");
-  // console.log(formattedDate);
-
-  // Fetch all expenses from the backend
   useEffect(() => {
     const fetchExpenses = async () => {
       try {
@@ -50,7 +44,7 @@ const DebitHistory = () => {
     }
 
     return expenses.reduce((total, expense) => {
-      return total + (expense.amount || 0); // Add amount if it exists, otherwise add 0
+      return total + (expense.amount || 0);
     }, 0);
   };
 
@@ -62,14 +56,6 @@ const DebitHistory = () => {
       </div>
     );
   }
-
-  // const getPerDayExpenses = (expenses) => {
-  //   return expenses.reduce((acc, { date, amount = 0 }) => {
-  //     if (!date) return acc; // Skip if date is missing
-  //     acc[date] = (acc[date] || 0) + amount; // Sum amounts for each date
-  //     return acc;
-  //   }, {});
-  // };
 
   if (error) {
     return (
@@ -106,7 +92,9 @@ const DebitHistory = () => {
                 expenses.map((expense) => (
                   <tr key={expense._id} className="border-t">
                     <td className="py-2 px-4">{expense.description}</td>
-                    <td className="py-2 px-4">₹ {expense.amount}</td>
+                    <td className="py-2 px-4">
+                      ₹ {new Intl.NumberFormat().format(expense.amount)}
+                    </td>
                     <td className="py-2 px-4">
                       {format(expense.date, "MMMM dd, yyyy")}
                       {/* {new Date(expense.date).toLocaleDateString()} */}

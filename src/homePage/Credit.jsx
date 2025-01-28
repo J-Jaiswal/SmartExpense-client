@@ -2,7 +2,7 @@ import React from "react";
 
 const Credit = () => {
   return (
-    <div className="flex items-center justify-center rounded-sm bg-gray-100 p-4">
+    <div className="flex items-center justify-center rounded-sm p-4">
       <div className="w-[300px] bg-white rounded-lg shadow-lg p-4">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
           Income
