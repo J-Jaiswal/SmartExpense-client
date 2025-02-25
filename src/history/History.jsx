@@ -6,7 +6,7 @@ const History = () => {
   return (
     <div className="flex justify-center gap-16 w-full my-16">
       <CreditHistory />
-      <DebitHistory />
+      {/* <DebitHistory /> */}
     </div>
   );
 };

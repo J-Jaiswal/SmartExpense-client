@@ -1,5 +1,7 @@
 import React from "react";
 
+// currently not fuctional with no backend
+
 const Credit = () => {
   return (
     <div className="flex items-center justify-center rounded-sm p-4">
@@ -62,7 +64,7 @@ const Credit = () => {
           <div className="text-center">
             <button
               type="submit"
-              className="w-full bg-[#4fab9a] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#bed4d9] transition duration-300"
+              className="w-full bg-[#387478] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#62A388] transition duration-300"
               // onClick={addExpense}
             >
               Add

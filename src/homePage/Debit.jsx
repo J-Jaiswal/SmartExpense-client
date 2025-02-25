@@ -3,16 +3,13 @@ import Axios from "axios";
 
 const Debit = () => {
   const serverURL = import.meta.env.VITE_BASE_URL;
-
   const [expense, setExpense] = useState({
-    // expenseName: "",
     description: "",
     date: "",
-    // time: "",
     amount: "",
-    // category: "",
-    // paymentMethod: "",
   });
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -24,41 +21,54 @@ const Debit = () => {
 
   const addExpense = async () => {
     const { description, date, amount } = expense;
-    if (
-      // !expenseName ||
-      !description ||
-      !date ||
-      // !time ||
-      !amount
-      // !category ||
-      // !paymentMethod
-    ) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setError("Please log in to add expenses.");
+      return;
+    }
+
+    if (!description || !date || !amount) {
       setError("Please fill out all fields before submitting.");
       return;
     }
 
-    console.log("Fuction runned");
+    // setError("Errror in adding expense");
+    // setSuccessMessage("Expense added sucessfully");
+
     try {
-      await Axios.post(`${serverURL}/api/expense/add`, expense);
-      // const response = await getUserTransactions();
-      setExpense({});
-      console.log("Expense added successfully");
-      window.location.reload();
-      alert("Expense added successfully");
+      await Axios.post(
+        `${serverURL}/api/expense/add`,
+        { description, date, amount },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert("Expense added successfully!");
+      setExpense({ description: "", date: "", amount: "" });
     } catch (error) {
-      console.log("Error in adding expense:", error);
+      console.error("Error in adding expense:", error);
+      setError("Failed to add expense. Please try again.");
     }
   };
 
-  // console.log(expense);
   return (
     <div className="flex items-center justify-center  rounded-3xl p-4">
       <div className="w-[300px] bg-white rounded-lg shadow-lg p-4">
         <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
           Expense
         </h2>
+
+        {error && <p className="text-red-500 text-center mb-2">{error}</p>}
+        {successMessage && (
+          <p className="text-green-500 text-center mb-2">{successMessage}</p>
+        )}
+
         <div className="space-y-4">
-          {/* Expense Name */}
+          {/* Amount */}
           <div>
             <label
               htmlFor="amount"
@@ -69,12 +79,13 @@ const Debit = () => {
             <input
               type="number"
               id="amount"
-              // value={expense.amount}
+              value={expense.amount}
               onChange={handleInputChange}
               placeholder="Enter Amount"
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             />
           </div>
+
           {/* Description */}
           <div>
             <label
@@ -86,6 +97,7 @@ const Debit = () => {
             <input
               type="text"
               id="description"
+              value={expense.description}
               onChange={handleInputChange}
               placeholder="E.g., Canteen"
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
@@ -103,6 +115,7 @@ const Debit = () => {
             <input
               type="datetime-local"
               id="date"
+              value={expense.date}
               onChange={handleInputChange}
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             />
@@ -111,8 +124,7 @@ const Debit = () => {
           {/* Submit Button */}
           <div className="text-center">
             <button
-              // type="submit"
-              className="w-full bg-[#4fab9a] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#bed4d9] transition duration-300"
+              className="w-full bg-[#387478] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#62A388] transition duration-300"
               onClick={addExpense}
             >
               Add

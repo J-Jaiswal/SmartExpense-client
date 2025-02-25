@@ -2,70 +2,67 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API from "../api"; // Import Axios instance
 
-const Login = () => {
+const Signup = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
 
+    // <---- the issue is with Axios interceptors in using axios ------>
     // try {
-    //   const { data } = await API.post("/api/auth/login", { email, password }); // Manually add `/api`
-    //   localStorage.setItem("token", data.token);
-    //   localStorage.setItem("user", JSON.stringify(data.user));
-
-    //   navigate("/dashboard");
+    //   await API.post("/api/auth/register", { name, email, password }); // Manually add `/api`
+    //   navigate("/login");
     // } catch (err) {
-    //   setError(err.response?.data?.message || "Login failed");
+    //   setError(err.response?.data?.message || "Signup failed");
     // }
-
+    // <---- the issue is with Axios interceptors in using axios ------>
     try {
-      console.log(
-        "Sending request to:",
-        `${import.meta.env.VITE_BASE_URL}/api/auth/login`
-      );
-
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/auth/login`,
+        `${import.meta.env.VITE_BASE_URL}/api/auth/register`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+          }),
         }
       );
 
-      console.log("Response Status:", response.status); // ✅ Debugging response status
-
       const data = await response.json();
-
-      console.log("Server Response:", data); // ✅ Debugging response
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      alert("Login succesfull");
+      console.log("Response:", data);
+      alert("User added succesfully");
       navigate("/");
-      window.dispatchEvent(new Event("storage"));
-    } catch (err) {
-      console.error("Login Error:", err.message);
-      setError(err.message);
+    } catch (error) {
+      console.error("Fetch Error:", error);
     }
   };
 
   return (
     <div className="flex h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
+        <h2 className="text-2xl font-bold text-center">Sign Up</h2>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <form className="space-y-4" onSubmit={handleLogin}>
+        <form className="space-y-4" onSubmit={handleSignup}>
+          <div>
+            <label className="block mb-1 text-sm font-medium">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-2 border rounded-lg"
+              placeholder="Enter your name"
+              required
+            />
+          </div>
           <div>
             <label className="block mb-1 text-sm font-medium">Email</label>
             <input
@@ -92,13 +89,13 @@ const Login = () => {
             type="submit"
             className="w-full py-2 text-white bg-[#387478] rounded-lg hover:bg-[#629584]"
           >
-            Login
+            Sign Up
           </button>
         </form>
         <p className="text-sm text-center">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-[#243642] underline">
-            Sign up
+          Already have an account?{" "}
+          <Link to="/login" className="text-[#243642] underline">
+            Login
           </Link>
         </p>
       </div>
@@ -106,4 +103,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

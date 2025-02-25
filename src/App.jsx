@@ -4,6 +4,8 @@ import Analysis from "./components/Analysis";
 import Login from "./auth/Login";
 import Home from "./homePage/Home";
 import History from "./history/History";
+import ExpenseAnalysisFilter from "./components/ExpenseAlaysisFilter";
+import Signup from "./auth/SignUp";
 
 function App() {
   return (
@@ -18,7 +20,10 @@ function App() {
               <Route path="/history" element={<History />} />
 
               <Route path="/expense" element={<Analysis />} />
+              <Route path="/filter" element={<ExpenseAnalysisFilter />} />
+
               <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
             </Routes>
           </BrowserRouter>
         </div>

@@ -1,4 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Axios from "axios";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
 import {
   BarChart,
   Bar,
@@ -10,101 +14,239 @@ import {
   PieChart,
   Pie,
   Cell,
-  LineChart,
-  Line,
 } from "recharts";
 
+dayjs.extend(isoWeek);
+
+const COLORS = [
+  "#0088FE",
+  "#00C49F",
+  "#FFBB28",
+  "#FF8042",
+  "#A28CFE",
+  "#FF6361",
+  "#58508D",
+];
+
 const Analysis = () => {
-  // Mock data for charts
-  const expenseData = [
-    { category: "Canteen", amount: 150 },
-    { category: "Transport", amount: 100 },
-    { category: "Groceries", amount: 200 },
-    { category: "Bills", amount: 300 },
-    { category: "Entertainment", amount: 180 },
-  ];
+  const navigate = useNavigate();
+  const [expenses, setExpenses] = useState([]);
+  const [filteredExpenses, setFilteredExpenses] = useState([]);
+  const [weeks, setWeeks] = useState([]);
+  const [months, setMonths] = useState([]);
+  const [selectedWeek, setSelectedWeek] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const serverURL = import.meta.env.VITE_BASE_URL;
 
-  const trendData = [
-    { week: "Week 1", amount: 500 },
-    { week: "Week 2", amount: 700 },
-    { week: "Week 3", amount: 650 },
-    { week: "Week 4", amount: 800 },
-  ];
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      const token = localStorage.getItem("token");
 
-  const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#8dd1e1"];
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await Axios.get(
+          `${serverURL}/api/expense/getExpense`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        setExpenses(response.data);
+        processFilters(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching expense history:", err.message);
+        setError("Failed to fetch expense history. Please try again.");
+        setLoading(false);
+      }
+    };
+
+    fetchExpenses();
+  }, []);
+
+  // ✅ Generate Weekly & Monthly Filters
+  const processFilters = (data) => {
+    if (data.length === 0) return;
+
+    const uniqueWeeks = [];
+    const uniqueMonths = new Set();
+    const allMonths = [
+      "December 2024",
+      ...Array.from({ length: 12 }, (_, i) =>
+        dayjs().year(2025).month(i).format("MMMM YYYY")
+      ),
+    ];
+
+    data.forEach((expense) => {
+      const expenseDate = dayjs(expense.date);
+      const monthYear = expenseDate.format("MMMM YYYY");
+      uniqueMonths.add(monthYear);
+
+      const totalDays = expenseDate.daysInMonth();
+      const weekOfMonth = Math.ceil(expenseDate.date() / 7);
+      let weekLabel = `${monthYear} - Week ${weekOfMonth}`;
+
+      if (weekOfMonth === 5 || expenseDate.date() > totalDays - 3) {
+        weekLabel = `${monthYear} - Week 5`;
+      }
+
+      if (!uniqueWeeks.includes(weekLabel)) {
+        uniqueWeeks.push(weekLabel);
+      }
+    });
+
+    setWeeks(uniqueWeeks);
+    setMonths([...new Set([...allMonths, ...uniqueMonths])]);
+    if (uniqueWeeks.length > 0) setSelectedWeek(uniqueWeeks[0]);
+    if (uniqueMonths.size > 0) setSelectedMonth([...uniqueMonths][0]);
+  };
+
+  // ✅ Filter Expenses Based on Selected Week & Month
+  useEffect(() => {
+    if (selectedWeek && selectedMonth) {
+      const [monthYear, weekNum] = selectedWeek.split(" - Week ");
+      const firstDay = dayjs(`${monthYear} 1`, "MMMM YYYY D").startOf("month");
+      const startOfWeek = firstDay.add((parseInt(weekNum) - 1) * 7, "day");
+      const weekDays = Array.from({ length: 7 }, (_, i) =>
+        startOfWeek.add(i, "day").format("YYYY-MM-DD")
+      );
+
+      const groupedByDay = weekDays.map((date) => {
+        const dayExpense = expenses.filter(
+          (expense) => dayjs(expense.date).format("YYYY-MM-DD") === date
+        );
+        const totalAmount = dayExpense.reduce(
+          (sum, exp) => sum + exp.amount,
+          0
+        );
+        return {
+          date: dayjs(date).format("dddd, MMM D"),
+          amount: totalAmount || 0,
+        };
+      });
+
+      setFilteredExpenses(groupedByDay);
+    }
+  }, [selectedWeek, selectedMonth, expenses]);
+
+  if (loading) return <div>Loading...</div>;
+  if (!localStorage.getItem("token")) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-lg font-semibold text-gray-700">
+          Please log in to view your expense analysis.
+        </p>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="container mx-auto">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Data Analysis
-        </h2>
+    <div className="flex justify-center w-full">
+      <div className="p-6 my-12">
+        <div className="flex flex-col bg-[#e9e9e9] w-full mx-auto rounded-2xl py-6">
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+            Weekly Expense Analysis
+          </h2>
 
-        {/* Bar Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Bar Chart
-          </h3>
-          <BarChart
-            width={600}
-            height={300}
-            data={expenseData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="category" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="amount" fill="#82ca9d" />
-          </BarChart>
-        </div>
+          <div className="flex justify-center items-center gap-10 w-full px-12">
+            <div className="flex flex-col w-[400px]">
+              {/* Month Dropdown */}
+              <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Select Month:
+                </label>
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                  className="block w-full p-2 border rounded-lg"
+                >
+                  {months.map((month, index) => (
+                    <option key={index} value={month}>
+                      {month}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-        {/* Pie Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Pie Chart
-          </h3>
-          <PieChart width={400} height={300}>
-            <Pie
-              data={expenseData}
-              dataKey="amount"
-              nameKey="category"
-              cx="50%"
-              cy="50%"
-              outerRadius={120}
-              fill="#8884d8"
-              label
-            >
-              {expenseData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
+              {/* Week Dropdown */}
+              <div className="bg-white p-4 rounded-lg shadow-md">
+                <label className="block text-gray-700 font-medium mb-2">
+                  Select Week:
+                </label>
+                <select
+                  value={selectedWeek}
+                  onChange={(e) => setSelectedWeek(e.target.value)}
+                  className="block w-full p-2 border rounded-lg"
+                >
+                  {weeks.map((week, index) => (
+                    <option key={index} value={week}>
+                      {week}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Bar Chart */}
+          <div className="flex justify-center items-center gap-10 px-12 my-12">
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                Daily Expenses
+              </h3>
+              <BarChart width={700} height={350} data={filteredExpenses}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis
+                  dataKey="date"
+                  angle={-45}
+                  textAnchor="end"
+                  height={70}
                 />
-              ))}
-            </Pie>
-            <Tooltip />
-          </PieChart>
-        </div>
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar
+                  dataKey="amount"
+                  fill="#82ca9d"
+                  label={{ position: "top" }}
+                />
+              </BarChart>
+            </div>
+          </div>
 
-        {/* Line Chart */}
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Line Chart
-          </h3>
-          <LineChart
-            width={600}
-            height={300}
-            data={trendData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="amount" stroke="#ff7300" />
-          </LineChart>
+          {/* Pie Chart - Expense Distribution */}
+          <div className="flex justify-center items-center gap-10 px-12 my-12">
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                Expense Distribution
+              </h3>
+              <PieChart width={500} height={400}>
+                <Pie
+                  data={filteredExpenses}
+                  dataKey="amount"
+                  nameKey="date"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={120}
+                  label
+                >
+                  {filteredExpenses.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </div>
+          </div>
         </div>
       </div>
     </div>
