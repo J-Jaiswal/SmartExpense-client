@@ -1,16 +1,15 @@
 import React from "react";
 
-// currently not fuctional with no backend
-
+// Currently not functional with no backend
 const Credit = () => {
   return (
-    <div className="flex items-center justify-center rounded-sm p-4">
-      <div className="w-[300px] bg-white rounded-lg shadow-lg p-4">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-full sm:w-[350px] md:w-[400px] bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Income
         </h2>
-        <div className="space-y-4">
-          {/* Expense Name */}
+        <div className="space-y-5">
+          {/* Amount Input */}
           <div>
             <label
               htmlFor="amount"
@@ -21,13 +20,12 @@ const Credit = () => {
             <input
               type="number"
               id="amount"
-              // value={expense.amount}
-              //   onChange={handleInputChange}
               placeholder="Enter Amount"
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             />
           </div>
-          {/* Description */}
+
+          {/* Description Input */}
           <div>
             <label
               htmlFor="description"
@@ -38,13 +36,12 @@ const Credit = () => {
             <input
               type="text"
               id="description"
-              //   onChange={handleInputChange}
-              placeholder="E.g., Canteen"
+              placeholder="E.g., Salary, Bonus"
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             />
           </div>
 
-          {/* Date Picker */}
+          {/* Date & Time Picker */}
           <div>
             <label
               htmlFor="date"
@@ -55,7 +52,6 @@ const Credit = () => {
             <input
               type="datetime-local"
               id="date"
-              //   onChange={handleInputChange}
               className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
             />
           </div>
@@ -65,7 +61,6 @@ const Credit = () => {
             <button
               type="submit"
               className="w-full bg-[#387478] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#62A388] transition duration-300"
-              // onClick={addExpense}
             >
               Add
             </button>

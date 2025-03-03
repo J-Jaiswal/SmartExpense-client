@@ -55,20 +55,20 @@ const ExpenseAnalysisFilter = () => {
 
   return (
     <div className="flex w-full justify-center">
-      <div className="min-h-screen w-[70%] p-6">
+      <div className="min-h-screen w-full sm:w-[90%] md:w-[70%] lg:w-[60%] p-4 sm:p-6">
         <div className="container mx-auto">
           {/* ✅ Pass All Necessary Props to Filter Component */}
           <ExpenseFilter
             expenses={expenses}
             onFilter={setFilteredExpenses}
-            selectedFilter={selectedFilter} // ✅ Preserving Existing Props
-            setSelectedFilter={setSelectedFilter} // ✅ Keeping Functionality
+            selectedFilter={selectedFilter}
+            setSelectedFilter={setSelectedFilter}
           />
 
           {/* ✅ Ensure Filtered Expenses Component Receives Correct Data */}
           <FilteredExpenses
             filteredExpenses={filteredExpenses}
-            expenses={expenses} // ✅ Keeping Original Prop Structure
+            expenses={expenses}
           />
         </div>
       </div>

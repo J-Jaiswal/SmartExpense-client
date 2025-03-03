@@ -14,6 +14,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  ResponsiveContainer,
 } from "recharts";
 
 dayjs.extend(isoWeek);
@@ -70,7 +71,6 @@ const Analysis = () => {
     fetchExpenses();
   }, []);
 
-  // ✅ Generate Weekly & Monthly Filters
   const processFilters = (data) => {
     if (data.length === 0) return;
 
@@ -107,7 +107,6 @@ const Analysis = () => {
     if (uniqueMonths.size > 0) setSelectedMonth([...uniqueMonths][0]);
   };
 
-  // ✅ Filter Expenses Based on Selected Week & Month
   useEffect(() => {
     if (selectedWeek && selectedMonth) {
       const [monthYear, weekNum] = selectedWeek.split(" - Week ");
@@ -126,7 +125,7 @@ const Analysis = () => {
           0
         );
         return {
-          date: dayjs(date).format("dddd, MMM D"),
+          date: dayjs(date).format("ddd, MMM D"), // Shortened day name
           amount: totalAmount || 0,
         };
       });
@@ -147,66 +146,65 @@ const Analysis = () => {
   }
 
   return (
-    <div className="flex justify-center w-full">
-      <div className="p-6 my-12">
-        <div className="flex flex-col bg-[#e9e9e9] w-full mx-auto rounded-2xl py-6">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            Weekly Expense Analysis
-          </h2>
+    <div className="flex flex-col items-center w-full p-4">
+      <div className="w-full max-w-4xl bg-[#e9e9e9] rounded-2xl p-6">
+        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">
+          Weekly Expense Analysis
+        </h2>
 
-          <div className="flex justify-center items-center gap-10 w-full px-12">
-            <div className="flex flex-col w-[400px]">
-              {/* Month Dropdown */}
-              <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Select Month:
-                </label>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(e.target.value)}
-                  className="block w-full p-2 border rounded-lg"
-                >
-                  {months.map((month, index) => (
-                    <option key={index} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-              </div>
+        <div className="flex flex-wrap justify-center gap-4 md:gap-10 w-full">
+          <div className="flex flex-col w-full sm:w-full md:w-[400px]">
+            <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+              <label className="block text-gray-700 font-medium mb-2">
+                Select Month:
+              </label>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                className="block w-full p-2 border rounded-lg"
+              >
+                {months.map((month, index) => (
+                  <option key={index} value={month}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              {/* Week Dropdown */}
-              <div className="bg-white p-4 rounded-lg shadow-md">
-                <label className="block text-gray-700 font-medium mb-2">
-                  Select Week:
-                </label>
-                <select
-                  value={selectedWeek}
-                  onChange={(e) => setSelectedWeek(e.target.value)}
-                  className="block w-full p-2 border rounded-lg"
-                >
-                  {weeks.map((week, index) => (
-                    <option key={index} value={week}>
-                      {week}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="bg-white p-4 rounded-lg shadow-md">
+              <label className="block text-gray-700 font-medium mb-2">
+                Select Week:
+              </label>
+              <select
+                value={selectedWeek}
+                onChange={(e) => setSelectedWeek(e.target.value)}
+                className="block w-full p-2 border rounded-lg"
+              >
+                {weeks.map((week, index) => (
+                  <option key={index} value={week}>
+                    {week}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
+        </div>
 
-          {/* Bar Chart */}
-          <div className="flex justify-center items-center gap-10 px-12 my-12">
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700 mb-4">
-                Daily Expenses
-              </h3>
-              <BarChart width={700} height={350} data={filteredExpenses}>
+        {/* Bar Chart - Scrollable */}
+        <div className="w-full overflow-x-auto overflow-y-auto max-h-[400px] my-6">
+          <div className="bg-white p-4 rounded-lg shadow-md w-full min-w-[600px]">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Daily Expenses
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredExpenses}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis
                   dataKey="date"
-                  angle={-45}
+                  angle={-30}
                   textAnchor="end"
-                  height={70}
+                  interval={0}
+                  height={100}
                 />
                 <YAxis />
                 <Tooltip />
@@ -217,36 +215,28 @@ const Analysis = () => {
                   label={{ position: "top" }}
                 />
               </BarChart>
-            </div>
+            </ResponsiveContainer>
           </div>
+        </div>
 
-          {/* Pie Chart - Expense Distribution */}
-          <div className="flex justify-center items-center gap-10 px-12 my-12">
-            <div className="bg-white p-4 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold text-gray-700 mb-4">
-                Expense Distribution
-              </h3>
-              <PieChart width={500} height={400}>
-                <Pie
-                  data={filteredExpenses}
-                  dataKey="amount"
-                  nameKey="date"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={120}
-                  label
-                >
-                  {filteredExpenses.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </div>
-          </div>
+        {/* Pie Chart */}
+        <div className="flex justify-center my-6 bg-white p-4 rounded-lg shadow-md w-full">
+          <PieChart width={300} height={300}>
+            <Pie
+              data={filteredExpenses}
+              dataKey="amount"
+              nameKey="date"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label
+            >
+              {filteredExpenses.map((_, index) => (
+                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
         </div>
       </div>
     </div>

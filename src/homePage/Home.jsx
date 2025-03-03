@@ -8,12 +8,14 @@ const Home = () => {
 
   return (
     <div className="flex justify-center gap-[120px] w-full my-14">
-      <div className="flex flex-col w-full gap-[50px]">
+      <div className="flex flex-col w-full">
         <div className="flex w-full justify-center gap-[30px]">
           <div className="flex text-[40px]">
             <p
               className={`hover:text-[#3983c1] cursor-pointer mr-4 ${
-                active === "debit" ? "text-[#225178] font-semibold" : ""
+                active === "debit"
+                  ? "text-[#225178] font-semibold underline"
+                  : ""
               }`}
               onClick={() => setActive("debit")}
             >
@@ -22,7 +24,9 @@ const Home = () => {
             /
             <p
               className={`hover:text-[#3983c1] cursor-pointer ml-4 ${
-                active === "credit" ? "text-[#225178] font-semibold" : ""
+                active === "credit"
+                  ? "text-[#225178] font-semibold underline"
+                  : ""
               }`}
               onClick={() => setActive("credit")}
             >

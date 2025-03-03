@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import API from "../api"; // Import Axios instance
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -13,14 +12,6 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    // <---- the issue is with Axios interceptors in using axios ------>
-    // try {
-    //   await API.post("/api/auth/register", { name, email, password }); // Manually add `/api`
-    //   navigate("/login");
-    // } catch (err) {
-    //   setError(err.response?.data?.message || "Signup failed");
-    // }
-    // <---- the issue is with Axios interceptors in using axios ------>
     try {
       const response = await fetch(
         `${import.meta.env.VITE_BASE_URL}/api/auth/register`,
@@ -29,72 +20,98 @@ const Signup = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            name: name,
-            email: email,
-            password: password,
-          }),
+          body: JSON.stringify({ name, email, password }),
         }
       );
 
       const data = await response.json();
       console.log("Response:", data);
-      alert("User added succesfully");
+
+      if (!response.ok) {
+        throw new Error(data.message || "Signup failed");
+      }
+
+      alert("User added successfully");
       navigate("/");
     } catch (error) {
       console.error("Fetch Error:", error);
+      setError(error.message);
     }
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center">Sign Up</h2>
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-        <form className="space-y-4" onSubmit={handleSignup}>
+    <div className="flex h-screen items-center justify-center bg-gray-100 px-4">
+      <div className="w-full max-w-md sm:w-[90%] bg-white rounded-lg shadow-lg p-6 sm:p-8">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          Sign Up
+        </h2>
+
+        {/* Error Message */}
+        {error && (
+          <p className="text-red-500 bg-red-100 p-2 rounded text-center mb-4">
+            {error}
+          </p>
+        )}
+
+        <form className="space-y-5" onSubmit={handleSignup}>
+          {/* Name Input */}
           <div>
-            <label className="block mb-1 text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
               placeholder="Enter your name"
               required
             />
           </div>
+
+          {/* Email Input */}
           <div>
-            <label className="block mb-1 text-sm font-medium">Email</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
               placeholder="Enter your email"
               required
             />
           </div>
+
+          {/* Password Input */}
           <div>
-            <label className="block mb-1 text-sm font-medium">Password</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Password
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded-lg"
+              className="mt-1 w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
               placeholder="Enter your password"
               required
             />
           </div>
+
+          {/* Signup Button */}
           <button
             type="submit"
-            className="w-full py-2 text-white bg-[#387478] rounded-lg hover:bg-[#629584]"
+            className="w-full bg-[#387478] text-white font-semibold py-3 rounded-lg shadow-md hover:bg-[#629584] transition duration-300"
           >
             Sign Up
           </button>
         </form>
-        <p className="text-sm text-center">
+
+        {/* Login Link */}
+        <p className="text-sm text-center mt-4">
           Already have an account?{" "}
-          <Link to="/login" className="text-[#243642] underline">
+          <Link to="/login" className="text-[#243642] underline font-medium">
             Login
           </Link>
         </p>

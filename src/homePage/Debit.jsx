@@ -33,9 +33,6 @@ const Debit = () => {
       return;
     }
 
-    // setError("Errror in adding expense");
-    // setSuccessMessage("Expense added sucessfully");
-
     try {
       await Axios.post(
         `${serverURL}/api/expense/add`,
@@ -47,8 +44,9 @@ const Debit = () => {
         }
       );
 
-      alert("Expense added successfully!");
+      setSuccessMessage("Expense added successfully!");
       setExpense({ description: "", date: "", amount: "" });
+      setError("");
     } catch (error) {
       console.error("Error in adding expense:", error);
       setError("Failed to add expense. Please try again.");
@@ -56,19 +54,26 @@ const Debit = () => {
   };
 
   return (
-    <div className="flex items-center justify-center  rounded-3xl p-4">
-      <div className="w-[300px] bg-white rounded-lg shadow-lg p-4">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-full sm:w-[350px] md:w-[400px] bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
           Expense
         </h2>
 
-        {error && <p className="text-red-500 text-center mb-2">{error}</p>}
+        {/* Error & Success Messages */}
+        {error && (
+          <p className="text-red-500 bg-red-100 p-2 rounded text-center mb-4">
+            {error}
+          </p>
+        )}
         {successMessage && (
-          <p className="text-green-500 text-center mb-2">{successMessage}</p>
+          <p className="text-green-500 bg-green-100 p-2 rounded text-center mb-4">
+            {successMessage}
+          </p>
         )}
 
-        <div className="space-y-4">
-          {/* Amount */}
+        <div className="space-y-5">
+          {/* Amount Input */}
           <div>
             <label
               htmlFor="amount"
@@ -86,7 +91,7 @@ const Debit = () => {
             />
           </div>
 
-          {/* Description */}
+          {/* Description Input */}
           <div>
             <label
               htmlFor="description"
@@ -104,7 +109,7 @@ const Debit = () => {
             />
           </div>
 
-          {/* Date Picker */}
+          {/* Date & Time Picker */}
           <div>
             <label
               htmlFor="date"
