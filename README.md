@@ -4,7 +4,7 @@ SmartExpense is a modern, responsive web application that helps users track and 
 
 ## 🚀 Features
 
-- 🔐 **JWT Authentication** (no Firebase)
+- 🔐 **JWT Authentication**
 - 📊 **Income & Expense Tracking**
 - 📈 **Weekly/Monthly Insights** with charts (Recharts)
 - 📅 **Daily Logs & History**
